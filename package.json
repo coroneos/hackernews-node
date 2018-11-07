@@ -1,0 +1,18 @@
+{
+  "name": "hackernews-node",
+  "version": "1.0.0",
+  "description": "GraphQL Server Reference Implementation",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "npx nodemon .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Paul Coroneos",
+  "license": "ISC",
+  "dependencies": {
+    "graphql-yoga": "^1.16.7"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.6"
+  }
+}
