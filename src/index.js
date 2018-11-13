@@ -12,38 +12,70 @@ const resolvers = {
   Query: {
     info: () => 'This is the API of HackerNews Clone',
     feed: () => links,
-    link: (id) => links.find({ id }),
+    link: (root, args) => links.find(link => link.id === args.id),
   },
 
   Mutation: {
     post: (root, args) => {
-      const link = {
-        id: `link-${idCount++}`,
-        description: args.description,
-        url: args.url,
-      };
-
+      const link = { id: `link-${idCount++}`, ...args };
       links.push(link);
       return link;
     },
 
     updateLink: (root, args) => {
-      // This looks nice, but isn't particularly efficient.
-      links = links.map(link => (args.id === link.id ? { ...link, ...args } : link))
-      return links.find({ id: args.id })
+      for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+
+        if (link.id === args.id) {
+          links[i] = args;
+          return links[i];
+        }
+      }
+
+      /*
+        let j;
+
+        links.forEach((link, i, arr) => {
+          if (link.id === args.id) {
+            j = i;
+            arr[i] = { ...link, ...args };
+          }
+        });
+
+        return links[j];
+      */
+
+      /*
+        This looks nice, but is inefficient.
+        links = links.map(link => (link.id === args.id ? { ...link, ...args } : link));
+        return links.find({ id: args.id });
+      */
+    },
+
+    patchLink: (root, args) => {
+      for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+
+        if (link.id === args.id) {
+          links[i] = { ...link, ...args };
+          return links[i];
+        }
+      }
     },
 
     deleteLink: (root, args) => {
-      let returnLink;
+      // const deletedLink = links.find(link => link.id === args.id);
+      // links = links.filter(link => link.id !== args.id);
+      // return deletedLink;
 
-      links = links.filter(link => {
-        if (args.id !== link.id) {
-          returnLink = link;
-          return true;
+      for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+
+        if (link.id === args.id) {
+          links.splice(i, 1);
+          return link;
         }
-      });
-      
-      return returnLink;
+      }
     }
   }
 };
