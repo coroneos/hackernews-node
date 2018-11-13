@@ -10,9 +10,14 @@
   "author": "Paul Coroneos",
   "license": "ISC",
   "dependencies": {
-    "graphql-yoga": "^1.16.7"
+    "graphql-yoga": "^1.16.7",
+    "prisma-binding": "^2.1.6"
   },
   "devDependencies": {
     "nodemon": "^1.18.6"
+  },
+  "peerDependencies": {
+    "graphql-cli": "^2.17.0",
+    "prisma": "^1.20.1"
   }
 }

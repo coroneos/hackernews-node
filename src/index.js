@@ -1,27 +1,26 @@
 const { GraphQLServer } = require('graphql-yoga');
-
-let links = [{
-  id: 'link-0',
-  url: 'www.howtographql.com',
-  description: 'Fullstack tutorial for GraphQL',
-}];
-
-let idCount = links.length;
+const { Prisma } = require('prisma-binding');
 
 const resolvers = {
   Query: {
     info: () => 'This is the API of HackerNews Clone',
-    feed: () => links,
+    feed: (root, args, context, info) => {
+      return context.db.query.links({}, info);
+    },
     link: (root, args) => links.find(link => link.id === args.id),
   },
 
   Mutation: {
-    post: (root, args) => {
-      const link = { id: `link-${idCount++}`, ...args };
-      links.push(link);
-      return link;
+    post: (root, args, context, info) => {
+      return context.db.mutation.createLink({
+        data: {
+          url: args.url,
+          description: args.description,
+        },
+      }, info);
     },
 
+    /*
     updateLink: (root, args) => {
       for (let i = 0; i < links.length; i++) {
         const link = links[i];
@@ -31,43 +30,9 @@ const resolvers = {
           return links[i];
         }
       }
-
-      /*
-        let j;
-
-        links.forEach((link, i, arr) => {
-          if (link.id === args.id) {
-            j = i;
-            arr[i] = { ...link, ...args };
-          }
-        });
-
-        return links[j];
-      */
-
-      /*
-        This looks nice, but is inefficient.
-        links = links.map(link => (link.id === args.id ? { ...link, ...args } : link));
-        return links.find({ id: args.id });
-      */
-    },
-
-    patchLink: (root, args) => {
-      for (let i = 0; i < links.length; i++) {
-        const link = links[i];
-
-        if (link.id === args.id) {
-          links[i] = { ...link, ...args };
-          return links[i];
-        }
-      }
     },
 
     deleteLink: (root, args) => {
-      // const deletedLink = links.find(link => link.id === args.id);
-      // links = links.filter(link => link.id !== args.id);
-      // return deletedLink;
-
       for (let i = 0; i < links.length; i++) {
         const link = links[i];
 
@@ -77,12 +42,22 @@ const resolvers = {
         }
       }
     }
+    */
   }
 };
 
 const server = new GraphQLServer({
   typeDefs: './src/schema.graphql',
   resolvers,
+  context: req => ({
+    ...req,
+    db: new Prisma({
+      typeDefs: 'src/generated/prisma.graphql',
+      endpoint: 'https://us1.prisma.sh/paul-coroneos/database/dev',
+      secret: 'mysecret123',
+      debug: true,
+    })
+  })
 });
 
 server.start(() => console.log('Server is running on http://localhost:4000'));
